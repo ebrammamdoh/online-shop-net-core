@@ -48,35 +48,6 @@ namespace OnlineShop.IdentityServer
                 option.EnableEndpointRouting = false;
             });
 
-            //services.AddIdentityServer()
-            // .AddTestUsers(Config.GetTestUsers().ToList())
-            //.AddDeveloperSigningCredential()
-            ////.AddOperationalStore(options =>
-            ////{
-            ////    options.ConfigureDbContext = builder => builder.UseSqlServer(Configuration.GetConnectionString("Default"));
-            ////    options.EnableTokenCleanup = true;
-            ////    options.TokenCleanupInterval = 30;
-            ////})
-            ////.AddInMemoryIdentityResources(Config.GetIdentityResources())
-            //.AddInMemoryClients(Config.GetClients())
-            //.AddInMemoryApiResources(Config.GetApiResources());
-
-            ////.AddAspNetIdentity<ApplicationUser>();
-
-            //services.AddCors(options =>
-            //{
-            //    options.AddPolicy("default", policy =>
-            //    {
-            //        policy.WithOrigins(Configuration["clientUrl"])
-            //            .AllowAnyHeader()
-            //            .AllowAnyMethod();
-            //    });
-            //});
-            //services.AddMvc(option =>
-            //{
-            //    option.EnableEndpointRouting = false;
-            //});
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

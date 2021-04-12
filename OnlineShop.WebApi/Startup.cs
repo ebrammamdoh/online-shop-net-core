@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityServer4.AccessTokenValidation;
@@ -48,32 +50,42 @@ namespace OnlineShop.WebApi
             services.AddAuthentication(option =>
             {
                 option.DefaultScheme = "Bearer";
-                option.DefaultChallengeScheme = "oidc";
             })
-               .AddJwtBearer("Bearer", opt =>
-               {
-                   opt.RequireHttpsMetadata = false;
-                   opt.Authority = Configuration.GetValue<string>("Authority");
-                   opt.Audience = "shopApi";
-               })
-            .AddOpenIdConnect("oidc", options =>
+            .AddJwtBearer("Bearer", opt =>
             {
-                options.Authority = Configuration.GetValue<string>("Authority");
-                options.ClientId = "onlineshop_angular";
-                options.ClientSecret = "secret";
-                options.ResponseType = "code"; //
-                options.SaveTokens = true;
-                options.Scope.Add("shopApi");
-                options.Scope.Add("email");
-                options.Scope.Add("openid");
-                options.Scope.Add("profile");
-                options.Scope.Add("offline_access");
-                options.RequireHttpsMetadata = false;
+                opt.RequireHttpsMetadata = false;
+                opt.Authority = Configuration.GetValue<string>("Authority");
+                opt.Audience = "shopApi";
             });
+
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
+
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Description = "JWT Authorization header using the Bearer scheme (Example: 'Bearer 12345abcdef')",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    Array.Empty<string>()
+                }
+            });
             });
         }
 
