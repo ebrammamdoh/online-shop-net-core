@@ -9,12 +9,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Infrastructure.Constants;
 using OnlineShop.Services.ItemsService;
+using OnlineShop.WebApi.Validations;
 
 namespace OnlineShop.WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
+    
     public class ItemsController : ControllerBase
     {
         private readonly IItemService _itemService;
@@ -25,6 +27,7 @@ namespace OnlineShop.WebApi.Controllers
 
         [HttpGet]
         [Route("GetById/{id}")]
+        [ValidateModel]
         public ActionResult GetById([FromRoute] int id)
         {
             try

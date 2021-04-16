@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using OnlineShop.Infrastructure.Constants;
+using OnlineShop.IdentityServer.Configurations;
 
 namespace OnlineShop.IdentityServer.Data
 {
@@ -20,16 +21,7 @@ namespace OnlineShop.IdentityServer.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            builder.Entity<IdentityRole>().HasData(new IdentityRole
-            {
-                Name = ConstantRoles.Admin,
-                NormalizedName = ConstantRoles.Admin.ToUpper()
-            },
-            new IdentityRole
-            {
-                Name = ConstantRoles.Customer,
-                NormalizedName = ConstantRoles.Customer.ToUpper()
-            });
+            builder.ApplyConfiguration(new RoleConfiguration());
         }
     }
 }

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -15,11 +16,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using OnlineShop.Data;
 using OnlineShop.Services.CustomersService;
 using OnlineShop.Services.ItemsService;
 using OnlineShop.Services.OrdersService;
+using OnlineShop.WebApi.Validations;
 using Repositories.UnitOfWork;
 
 namespace OnlineShop.WebApi
@@ -47,18 +50,27 @@ namespace OnlineShop.WebApi
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<ICustomerService, CustomerService>();
 
+            var jwtSettings = Configuration.GetSection("JwtSettings");
+
             services.AddAuthentication(option =>
             {
-                option.DefaultScheme = "Bearer";
+                option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-            .AddJwtBearer("Bearer", opt =>
+            .AddJwtBearer(opt =>
             {
                 opt.RequireHttpsMetadata = false;
                 opt.Authority = Configuration.GetValue<string>("Authority");
                 opt.Audience = "shopApi";
             });
 
-            services.AddControllers();
+            services.AddControllers(options =>
+            {
+                options.Filters.Add(typeof(ValidateModelAttribute));
+            }).SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
+            .AddJsonOptions(options => {
+                options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+            });
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
@@ -73,19 +85,19 @@ namespace OnlineShop.WebApi
                 });
 
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
-            {
                 {
-                    new OpenApiSecurityScheme
                     {
-                        Reference = new OpenApiReference
+                        new OpenApiSecurityScheme
                         {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "Bearer"
-                        }
-                    },
-                    Array.Empty<string>()
-                }
-            });
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
+                });
             });
         }
 

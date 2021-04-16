@@ -25,47 +25,31 @@ namespace OnlineShop.IdentityServer.ApiControllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly ApplicationDbContext _dataContext;
         private readonly IConfiguration _configuration;
+        private readonly JwtHandler _jwtHandler;
         public AuthController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            ApplicationDbContext dataContext,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            JwtHandler jwtHandler)
         {
             _userManager = userManager;
             _signInManager = signInManager;
-            _dataContext = dataContext;
             _configuration = configuration;
+            _jwtHandler = jwtHandler;
         }
 
         [HttpPost("Login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequestModel request)
+        public async Task<IActionResult> Login([FromBody] LoginRequestModel userForAuthentication)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
-            var signInResult = await _signInManager.PasswordSignInAsync(request.Username, request.Password, true, true);
-
-            if (!signInResult.Succeeded)
-            {
-                return BadRequest("Invalid user name or password");
-            }
-
-            var user = await _userManager.FindByNameAsync(request.Username);
-            var accessToken = GetToken(user.Id, 3600);
-
-            var refreshToken = GetToken(user.Id, 3600);
-
-            var result = new
-            {
-                AccessToken = accessToken,
-                RefreshToken = refreshToken
-            };
-
-            return Ok(result);
+            var user = await _userManager.FindByNameAsync(userForAuthentication.Username);
+            if (user == null || !await _userManager.CheckPasswordAsync(user, userForAuthentication.Password))
+                return Unauthorized(new AuthResponseModel { ErrorMessage = "Invalid Authentication" });
+            var signingCredentials = _jwtHandler.GetSigningCredentials();
+            var claims = _jwtHandler.GetClaims(user);
+            var tokenOptions = _jwtHandler.GenerateTokenOptions(signingCredentials, claims);
+            var token = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+            return Ok(new AuthResponseModel { IsAuthSuccessful = true, Token = token });
         }
 
         [HttpPost("Register")]
