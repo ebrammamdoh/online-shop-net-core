@@ -59,9 +59,19 @@ namespace OnlineShop.WebApi
             })
             .AddJwtBearer(opt =>
             {
+                opt.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings.GetSection("validIssuer").Value,
+                    ValidAudience = jwtSettings.GetSection("validAudience").Value,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.GetSection("securityKey").Value))
+                };
                 opt.RequireHttpsMetadata = false;
                 opt.Authority = Configuration.GetValue<string>("Authority");
-                opt.Audience = "shopApi";
+                opt.Audience = jwtSettings.GetSection("validAudience").Value;
             });
 
             services.AddControllers(options =>

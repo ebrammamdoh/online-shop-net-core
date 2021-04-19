@@ -32,7 +32,7 @@ namespace OnlineShop.WebApi.Controllers
         {
             try
             {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "42d9354c-38a1-4e39-91de-dce6dd2e9d66"; // dummy UserId
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var customer = _customerService.GetCustomerByUserId(userId);
                 var result = _orderService.Create(new OrderDTO
                 {

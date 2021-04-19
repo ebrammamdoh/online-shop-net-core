@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using OnlineShop.Infrastructure.Constants;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -29,9 +30,11 @@ namespace OnlineShop.IdentityServer
         public List<Claim> GetClaims(IdentityUser user)
         {
             var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.Name, user.Email)
-        };
+            {
+                new Claim(ClaimTypes.Name, user.Email),
+                new Claim(ClaimTypes.Role, ConstantRoles.Customer),
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+            };
             return claims;
         }
         public JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredentials, List<Claim> claims)

@@ -15,6 +15,9 @@ namespace OnlineShop.IdentityServer.Models
         [Required]
         public string Password { get; set; }
         [Required]
+        [Compare("Password")]
+        public string ConfirmPassword { get; set; }
+        [Required]
         public Roles Roles { get; set; }
         [Required]
         [MaxLength(100)]

@@ -11,7 +11,7 @@ namespace OnlineShop.WebApi.Validations
     {
         public override void OnActionExecuted(ActionExecutedContext context)
         {
-            throw new NotImplementedException();
+            
         }
 
         public override void OnActionExecuting(ActionExecutingContext context)

@@ -100,29 +100,6 @@ namespace OnlineShop.IdentityServer.ApiControllers
             var response = client.Execute(request);
             return Ok(true);
         }
-    
-    private string GetToken(string id, int expiration)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes("secret");
-            var sKey = new SymmetricSecurityKey(key);
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim( ClaimTypes.UserData,
-                    "IsValid", ClaimValueTypes.String, "(local)" )
-                }),
-                Issuer = "self",
-                Audience = "http://localhost:53132",
-                Expires = DateTime.Now.AddMinutes(60),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes("secret")), SecurityAlgorithms.HmacSha256Signature),
-            };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            var accessToken = tokenHandler.WriteToken(token);
-
-            return accessToken;
-        }
     }
 
 }
